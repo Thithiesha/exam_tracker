@@ -1,0 +1,62 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #progressChart {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+    
+</head>
+<h1>{{ subject.name }}</h1>
+
+<ul>
+    {% for score in scores %}
+    <li>Score: {{ score.score }} - Date: {{ score.date }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Progress Chart</h2>
+<canvas id="progressChart" width="400" height="200"></canvas>
+
+<script>
+    var ctx = document.getElementById('progressChart').getContext('2d');
+    var progressChart = new Chart(ctx, {
+        type: 'line', // Line chart for progress over time
+        data: {
+            labels: {{ dates_data|safe }}, // X-axis labels (dates)
+            datasets: [{
+                label: 'Exam Scores',
+                data: {{ scores_data|safe }}, // Y-axis data (scores)
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.2, // Adds smooth curve to the line
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Exam Date',
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Score',
+                    },
+                    beginAtZero: true, // Y-axis starts from 0
+                    max: 100, // Assuming scores are out of 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+

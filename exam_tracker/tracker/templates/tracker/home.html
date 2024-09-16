@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Progress</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .subject-container {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .content-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .chart-container, .table-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th, td {
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .content-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <style>
+        footer {
+            background-color: #f1f1f1;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="my-4">Progress Tracker</h1>
+
+    <!-- Add Exam Score Button -->
+    <a href="{% url 'add_score' %}" class="btn btn-primary">Add Exam Score</a>
+
+    {% for chart_data in charts_data %}
+    <div class="subject-container">
+        <h2>{{ chart_data.subject }}</h2>
+
+        <div class="content-row">
+            <!-- Canvas element for the chart -->
+            <div class="chart-container">
+                <canvas id="chart-{{ forloop.counter }}" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Table of exam scores -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date, score in chart_data.dates_scores_pairs %}
+                        <tr>
+                            <td>{{ date }}</td>
+                            <td>{{ score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var chartsData = {{ charts_data|safe }};
+    
+    chartsData.forEach(function(data, index) {
+        var ctx = document.getElementById('chart-' + (index + 1)).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.dates_data,
+                datasets: [{
+                    label: 'Exam Scores for ' + data.subject,
+                    data: data.scores_data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Score'
+                        },
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+<br> <br>
+<footer>
+    <p>Made with love for my angel <3 </p>
+</footer>
+</body>
+</html>
